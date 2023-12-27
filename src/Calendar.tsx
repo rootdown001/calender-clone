@@ -4,34 +4,65 @@ import {
   endOfWeek,
   format,
   startOfWeek,
-  getDay,
   isSameMonth,
   isBefore,
-  getDayOfYear,
   isToday,
+  subMonths,
+  addMonths,
 } from "date-fns";
 import { startOfMonth } from "date-fns/fp";
 import { useState } from "react";
+import AddEvent from "./AddEvent";
+import useLocalStorage from "./useLocalStorage";
 
 export default function Calendar() {
+  // Event state
+  const [events, setEvents] = useLocalStorage("events", []);
+  // Event Modal
+  const [isEventFormOpen, setIsEventFormOpen] = useState(false);
+  // is modal an edit
+  const [isModalEdit, setIsModalEdit] = useState(false);
+
+  //   Calander Hooks
   const [visibleMonth, setVisibleMonth] = useState(new Date());
-  //   const [today, setToday] = useState(new Date());
   const visibleDates = eachDayOfInterval({
     start: startOfWeek(startOfMonth(visibleMonth)),
     end: endOfWeek(endOfMonth(visibleMonth)),
   });
-  console.log(
-    "🚀 ~ file: Calendar.tsx:18 ~ Calendar ~ visibleDates:",
-    visibleDates
-  );
+  //   console.log(
+  //     "🚀 ~ file: Calendar.tsx:18 ~ Calendar ~ visibleDates:",
+  //     visibleDates
+  //   );
+
+  // EventForm functions
+
+  // calander functions
+
+  function showPreviousMonth() {
+    setVisibleMonth((currentMonth) => {
+      return subMonths(currentMonth, 1);
+    });
+  }
+
+  function showNextMonth() {
+    setVisibleMonth((currentMonth) => {
+      return addMonths(currentMonth, 1);
+    });
+  }
 
   return (
     <div className="calendar">
       <div className="header">
-        <button className="btn">Today</button>
+        <button className="btn" onClick={() => setVisibleMonth(new Date())}>
+          Today
+        </button>
         <div>
-          <button className="month-change-btn">&lt;</button>
-          <button className="month-change-btn">&gt;</button>
+          <button className="month-change-btn" onClick={showPreviousMonth}>
+            &lt;
+          </button>
+          <button className="month-change-btn" onClick={showNextMonth}>
+            &gt;
+          </button>
         </div>
         <span className="month-title">
           {format(visibleMonth, "MMMM - yyyy")}
@@ -58,12 +89,24 @@ export default function Calendar() {
                 <div className={`day-number ${isToday(date) && "today"}`}>
                   {format(date, "d")}
                 </div>
-                <button className="add-event-btn">+</button>
+                <button
+                  className="add-event-btn"
+                  onClick={() => setIsEventFormOpen(true)}
+                >
+                  +
+                </button>
               </div>
             </div>
           );
         })}
       </div>
+      <AddEvent
+        isEventFormOpen={isEventFormOpen}
+        isModalEdit={isModalEdit}
+        onClose={() => setIsEventFormOpen(false)}
+        events={events}
+        setEvents={setEvents}
+      />
 
       {/* <div className="days">
         <div className="day non-month-day old-month-day">
