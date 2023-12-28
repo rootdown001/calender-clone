@@ -20,28 +20,18 @@ export default function AddEvent({
   } = useForm();
 
   const allDay = watch("allDay");
-  //   const nameRef = useRef("");
-  //   const allDayRef = useRef(false);
-  //   const startTimeRef = useRef("");
-  //   const endTimeRef = useRef("");
-  //   const colorRef = useRef("");
-
-  //   const [name, setName] = useState("");
-  //   const [allDay, setAllDay] = useState(false);
-  const [startTime, setStartTime] = useState("");
-  const [endTime, setEndTime] = useState("");
+  const startTimeWatch = watch("startTime");
   const [color, setColor] = useState("");
 
   function addEvent(data) {
     console.log("🚀 ~ file: AddEvent.tsx:30 ~ addEvent ~ data:", data);
-    // e.preventDefault();
 
     const newEvent = {
       id: crypto.randomUUID(),
       name: data.name,
       allDay: data.allDay,
-      startTime,
-      endTime,
+      startTime: data.startTime,
+      endTime: data.endTime,
       color,
     };
 
@@ -55,9 +45,6 @@ export default function AddEvent({
     // setEvents([...events, newEvent]);
     // reset fields
     reset();
-    setStartTime("");
-    setEndTime("");
-    setColor("");
   }
 
   function removeEvent() {}
@@ -89,40 +76,49 @@ export default function AddEvent({
               })}
             />
           </FormGroup>
-
-          <div className="form-group checkbox">
+          <FormGroup
+            classGroup={"form-group checkbox"}
+            errorMessage={errors?.allDay?.message}
+          >
             <label htmlFor="all-day">All Day?</label>
-            {/* <input type="checkbox" id="all-day" {...register("allDay")} /> */}
-            <Controller
-              name="allDay"
-              control={control}
-              defaultValue={false}
-              render={({ field }) => (
-                <input type="checkbox" id="all-day" {...field} />
-              )}
-            />
-          </div>
+            <input type="checkbox" id="all-day" {...register("allDay")} />
+          </FormGroup>
+
           <div className="row">
-            <div className="form-group">
+            <FormGroup
+              classGroup={"form-group"}
+              errorMessage={errors?.startTime?.message}
+            >
               <label htmlFor="start-time">Start Time</label>
               <input
                 type="time"
-                value={startTime}
                 disabled={allDay}
                 id="start-time"
-                onChange={(e) => setStartTime(e.target.value)}
+                {...register("startTime", {
+                  required: { value: !allDay, message: "Required" },
+                })}
               />
-            </div>
-            <div className="form-group">
+            </FormGroup>
+
+            <FormGroup
+              classGroup={"form-group"}
+              errorMessage={errors?.endTime?.message}
+            >
               <label htmlFor="end-time">End Time</label>
               <input
                 type="time"
-                value={endTime}
                 disabled={allDay}
                 id="end-time"
-                onChange={(e) => setEndTime(e.target.value)}
+                {...register("endTime", {
+                  required: { value: !allDay, message: "Required" },
+                  validate: (endTime) => {
+                    if (!allDay && endTime <= startTimeWatch) {
+                      return "Invalid End Time";
+                    }
+                  },
+                })}
               />
-            </div>
+            </FormGroup>
           </div>
           <div className="form-group">
             <label>Color</label>

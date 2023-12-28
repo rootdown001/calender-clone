@@ -1,5 +1,5 @@
 export default function FormGroup({
-  classGroup = "   ",
+  classGroup = "",
   errorMessage = "",
   children,
 }) {
@@ -7,7 +7,7 @@ export default function FormGroup({
     <div className={classGroup}>
       {children}
       {errorMessage.length > 0 && (
-        <div style={{ color: "red", fontSize: "small" }}>{errorMessage}</div>
+        <span style={{ color: "red", fontSize: "small" }}>{errorMessage}</span>
       )}
     </div>
   );
