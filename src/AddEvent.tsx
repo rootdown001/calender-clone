@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { Controller, useForm } from "react-hook-form";
 import FormGroup from "./FormGroup";
@@ -19,20 +19,26 @@ export default function AddEvent({
     formState: { errors },
   } = useForm();
 
-  const allDay = watch("allDay");
+  const [allDayState, setAllDayState] = useState(false);
+
+  useEffect(() => {
+    isEventFormOpen && setAllDayState(false);
+  }, [isEventFormOpen]);
+
+  console.log("allDayState: ", allDayState);
+
   const startTimeWatch = watch("startTime");
-  const [color, setColor] = useState("");
 
   function addEvent(data) {
-    console.log("🚀 ~ file: AddEvent.tsx:30 ~ addEvent ~ data:", data);
+    // console.log("🚀 ~ file: AddEvent.tsx:30 ~ addEvent ~ data:", data);
 
     const newEvent = {
       id: crypto.randomUUID(),
       name: data.name,
-      allDay: data.allDay,
+      allDay: !!data.allDay,
       startTime: data.startTime,
       endTime: data.endTime,
-      color,
+      color: data.color,
     };
 
     if (Array.isArray(events)) {
@@ -40,14 +46,11 @@ export default function AddEvent({
     } else {
       setEvents([[...events], newEvent]);
     }
-
+    reset();
     onClose();
     // setEvents([...events, newEvent]);
     // reset fields
-    reset();
   }
-
-  function removeEvent() {}
 
   return createPortal(
     <div className={`${isEventFormOpen && "modal"}`}>
@@ -81,8 +84,32 @@ export default function AddEvent({
             errorMessage={errors?.allDay?.message}
           >
             <label htmlFor="all-day">All Day?</label>
-            <input type="checkbox" id="all-day" {...register("allDay")} />
+            <Controller
+              control={control}
+              name="allDay"
+              render={({ field }) => (
+                <input
+                  type="checkbox"
+                  id="all-day"
+                  defaultChecked={false}
+                  onClick={(e) => {
+                    setAllDayState(e.target.checked);
+                  }}
+                  {...field}
+                />
+              )}
+            />
           </FormGroup>
+
+          {/* <input
+              type="checkbox"
+              id="all-day"
+              defaultChecked={false}
+              onClick={(e) => {
+                setAllDayState(e.target.checked);
+              }}
+              {...register("allDay")}
+            /> */}
 
           <div className="row">
             <FormGroup
@@ -92,10 +119,10 @@ export default function AddEvent({
               <label htmlFor="start-time">Start Time</label>
               <input
                 type="time"
-                disabled={allDay}
+                disabled={!!allDayState}
                 id="start-time"
                 {...register("startTime", {
-                  required: { value: !allDay, message: "Required" },
+                  required: { value: !allDayState, message: "Required" },
                 })}
               />
             </FormGroup>
@@ -107,12 +134,12 @@ export default function AddEvent({
               <label htmlFor="end-time">End Time</label>
               <input
                 type="time"
-                disabled={allDay}
+                disabled={allDayState}
                 id="end-time"
                 {...register("endTime", {
-                  required: { value: !allDay, message: "Required" },
+                  required: { value: !allDayState, message: "Required" },
                   validate: (endTime) => {
-                    if (!allDay && endTime <= startTimeWatch) {
+                    if (!allDayState && endTime <= startTimeWatch) {
                       return "Invalid End Time";
                     }
                   },
@@ -120,42 +147,45 @@ export default function AddEvent({
               />
             </FormGroup>
           </div>
-          <div className="form-group">
+          <FormGroup
+            classGroup={"form-group"}
+            // errorMessage={errors?.color?.message}
+          >
             <label>Color</label>
             <div className="row left">
               <input
                 type="radio"
-                name="color"
                 value="blue"
                 id="blue"
                 defaultChecked
                 className="color-radio"
+                {...register("color")}
               />
               <label htmlFor="blue">
                 <span className="sr-only">Blue</span>
               </label>
               <input
                 type="radio"
-                name="color"
                 value="red"
                 id="red"
                 className="color-radio"
+                {...register("color")}
               />
               <label htmlFor="red">
                 <span className="sr-only">Red</span>
               </label>
               <input
                 type="radio"
-                name="color"
                 value="green"
                 id="green"
                 className="color-radio"
+                {...register("color")}
               />
               <label htmlFor="green">
                 <span className="sr-only">Green</span>
               </label>
             </div>
-          </div>
+          </FormGroup>
           <div className="row">
             <button className="btn btn-success" type="submit">
               Add
