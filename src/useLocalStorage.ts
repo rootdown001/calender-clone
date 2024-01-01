@@ -1,19 +1,22 @@
-import { useDebugValue, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
-export default function useLocalStorage(storageKey, initialValue) {
+export default function useLocalStorage<T>(
+  storageKey: string,
+  initialValue: T | (() => T)
+): [T, React.Dispatch<React.SetStateAction<T>>] {
   const [value, setValue] = useState(() => {
     const tempGet = localStorage.getItem(storageKey);
     // see if value for storage key was in local storage
     if (tempGet == null) {
       // are we passing initial value as function or value
       if (typeof initialValue === "function") {
-        return initialValue();
+        return (initialValue as () => T)();
       } else {
         return initialValue;
       }
       // if it DOES exist, return that value as initial value
-      // change back to JSON object with JSON.parse()
     } else {
+      // change back to JSON object with JSON.parse()
       return JSON.parse(tempGet);
     }
   });
@@ -26,14 +29,6 @@ export default function useLocalStorage(storageKey, initialValue) {
       localStorage.setItem(storageKey, JSON.stringify(value));
     }
   }, [storageKey, value]);
-
-  // useEffect(() => {
-  //   if (Array.isArray(value)) {
-  //     setValue(value);
-  //   } else {
-  //     setValue([value]);
-  //   }
-  // }, [value]);
 
   console.log("value: ", value);
   return [value, setValue];

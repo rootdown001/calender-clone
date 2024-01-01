@@ -14,18 +14,22 @@ import { startOfMonth } from "date-fns/fp";
 import { useState } from "react";
 import AddEvent from "./AddEvent";
 import useLocalStorage from "./useLocalStorage";
+import { EventType } from "./types";
 
 export default function Calendar() {
   // Event state
-  const [events, setEvents] = useLocalStorage("events", []);
+  const [events, setEvents] = useLocalStorage<EventType[]>("events", []);
   // Event Modal
   const [isEventFormOpen, setIsEventFormOpen] = useState(false);
   // is modal an edit
   const [isModalEdit, setIsModalEdit] = useState(false);
 
+  // date of event
+  const [dateOfEvent, setDateOfEvent] = useState<Date>();
+
   //   Calander Hooks
   const [visibleMonth, setVisibleMonth] = useState(new Date());
-  const visibleDates = eachDayOfInterval({
+  const visibleDates: Date[] = eachDayOfInterval({
     start: startOfWeek(startOfMonth(visibleMonth)),
     end: endOfWeek(endOfMonth(visibleMonth)),
   });
@@ -89,9 +93,32 @@ export default function Calendar() {
                 <div className={`day-number ${isToday(date) && "today"}`}>
                   {format(date, "d")}
                 </div>
+
+                {/* figure out events */}
+                {/* <div className="events">
+                  <button className="all-day-event blue event">
+                    <div className="event-name">Short</div>
+                  </button>
+                  <button className="all-day-event blue event">
+                    <div className="event-name">
+                      Long Event Name That Just Keeps Going
+                    </div>
+                  </button>
+                  <button className="event">
+                    <div className="color-dot blue"></div>
+                    <div className="event-time">7am</div>
+                    <div className="event-name">Event Name</div>
+                  </button>
+                </div> */}
+
+                {/* end of events */}
+
                 <button
                   className="add-event-btn"
-                  onClick={() => setIsEventFormOpen(true)}
+                  onClick={() => {
+                    setIsEventFormOpen(true);
+                    setDateOfEvent(date);
+                  }}
                 >
                   +
                 </button>
@@ -101,6 +128,7 @@ export default function Calendar() {
         })}
       </div>
       <AddEvent
+        date={dateOfEvent}
         isEventFormOpen={isEventFormOpen}
         isModalEdit={isModalEdit}
         onClose={() => setIsEventFormOpen(false)}

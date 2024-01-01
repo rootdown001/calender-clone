@@ -1,26 +1,39 @@
-import { useEffect, useState } from "react";
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { createPortal } from "react-dom";
-import { Controller, useForm } from "react-hook-form";
+import { SubmitHandler, useForm } from "react-hook-form";
 import FormGroup from "./FormGroup";
+import { EventType } from "./types";
+import { EventNoId } from "./types";
+
+type AddEventProps = {
+  date: Date | undefined;
+  isEventFormOpen: boolean;
+  onClose: () => void;
+  events: EventType[];
+  setEvents: Dispatch<SetStateAction<EventType[]>>;
+  isModalEdit: boolean;
+};
 
 export default function AddEvent({
+  date,
   isEventFormOpen,
   onClose,
   events,
   setEvents,
   isModalEdit,
-}) {
+}: AddEventProps) {
+  // set up useForm for handling
   const {
     register,
     handleSubmit,
     reset,
-    control,
     watch,
     formState: { errors },
-  } = useForm();
+  } = useForm<EventNoId>();
 
   const [allDayState, setAllDayState] = useState(false);
 
+  // reset allDayState when isEventFormOpen changes
   useEffect(() => {
     isEventFormOpen && setAllDayState(false);
   }, [isEventFormOpen]);
@@ -29,11 +42,13 @@ export default function AddEvent({
 
   const startTimeWatch = watch("startTime");
 
-  function addEvent(data) {
-    // console.log("🚀 ~ file: AddEvent.tsx:30 ~ addEvent ~ data:", data);
+  const addNewEvent: SubmitHandler<EventNoId> = (data) => {
+    // console.log("🚀 ~ file: AddEvent.tsx:30 ~ addNewEvent ~ data:", data);
 
+    // create new event object
     const newEvent = {
       id: crypto.randomUUID(),
+      date: date,
       name: data.name,
       allDay: !!data.allDay,
       startTime: data.startTime,
@@ -41,16 +56,12 @@ export default function AddEvent({
       color: data.color,
     };
 
-    if (Array.isArray(events)) {
-      setEvents([...events, newEvent]);
-    } else {
-      setEvents([[...events], newEvent]);
-    }
+    // Add the new event to the events array
+    setEvents([...events, newEvent]);
+    // Reset the form fields and close the form
     reset();
     onClose();
-    // setEvents([...events, newEvent]);
-    // reset fields
-  }
+  };
 
   return createPortal(
     <div className={`${isEventFormOpen && "modal"}`}>
@@ -63,7 +74,8 @@ export default function AddEvent({
             &times;
           </button>
         </div>
-        <form onSubmit={handleSubmit(addEvent)}>
+        <form onSubmit={handleSubmit(addNewEvent)}>
+          {/* Form inputs */}
           <FormGroup
             classGroup={"form-group"}
             errorMessage={errors?.name?.message}
@@ -71,9 +83,7 @@ export default function AddEvent({
             <label htmlFor="name">Name</label>
             <input
               type="text"
-              //   name={name}
               id="name"
-              //   onChange={(e) => setName(e.target.value)}
               {...register("name", {
                 required: { value: true, message: "Required" },
               })}
@@ -84,32 +94,18 @@ export default function AddEvent({
             errorMessage={errors?.allDay?.message}
           >
             <label htmlFor="all-day">All Day?</label>
-            <Controller
-              control={control}
-              name="allDay"
-              render={({ field }) => (
-                <input
-                  type="checkbox"
-                  id="all-day"
-                  defaultChecked={false}
-                  onClick={(e) => {
-                    setAllDayState(e.target.checked);
-                  }}
-                  {...field}
-                />
-              )}
-            />
-          </FormGroup>
 
-          {/* <input
+            <input
               type="checkbox"
               id="all-day"
               defaultChecked={false}
               onClick={(e) => {
-                setAllDayState(e.target.checked);
+                const target = e.target as HTMLInputElement;
+                setAllDayState(target.checked);
               }}
               {...register("allDay")}
-            /> */}
+            />
+          </FormGroup>
 
           <div className="row">
             <FormGroup
@@ -186,6 +182,13 @@ export default function AddEvent({
               </label>
             </div>
           </FormGroup>
+          <FormGroup>
+            <input
+              type="date"
+              {...(register("date"), { value: date })}
+              style={{ display: "none" }}
+            />
+          </FormGroup>
           <div className="row">
             <button className="btn btn-success" type="submit">
               Add
@@ -199,6 +202,6 @@ export default function AddEvent({
         </form>
       </div>
     </div>,
-    document.querySelector("#modal-container")
+    document.querySelector("#modal-container")!
   );
 }
