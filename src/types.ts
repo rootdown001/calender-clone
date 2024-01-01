@@ -1,5 +1,5 @@
 export type EventType = {
-  id: string;
+  readonly id: string;
 } & EventNoId;
 
 export type EventNoId = {

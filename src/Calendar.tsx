@@ -24,8 +24,15 @@ export default function Calendar() {
   // is modal an edit
   const [isModalEdit, setIsModalEdit] = useState(false);
 
-  // date of event
+  // date of event to pass to event modal
   const [dateOfEvent, setDateOfEvent] = useState<Date>();
+  console.log(
+    "🚀 ~ file: Calendar.tsx:29 ~ Calendar ~ dateOfEvent:",
+    typeof dateOfEvent
+  );
+
+  // define event list for individual day
+  const [eventsDay, setEventsDay] = useState<EventType[]>([]);
 
   //   Calander Hooks
   const [visibleMonth, setVisibleMonth] = useState(new Date());
@@ -93,6 +100,8 @@ export default function Calendar() {
                 <div className={`day-number ${isToday(date) && "today"}`}>
                   {format(date, "d")}
                 </div>
+
+                <div className="events"></div>
 
                 {/* figure out events */}
                 {/* <div className="events">
