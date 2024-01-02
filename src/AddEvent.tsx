@@ -4,6 +4,7 @@ import { useForm } from "react-hook-form";
 import FormGroup from "./FormGroup";
 import { EventType, EventTypeNoDate } from "./types";
 import { EventNoIdNoDate } from "./types";
+import { format } from "date-fns";
 
 type AddEventProps = {
   dateOfEvent: Date;
@@ -71,7 +72,7 @@ export default function AddEvent({
       <div className="modal-body">
         <div className="modal-title">
           <div>Add Event</div>
-          <small>6/8/23</small>
+          <small>{format(dateOfEvent, "MM/dd/yy")}</small>
           <button className="close-btn" onClick={onClose}>
             &times;
           </button>
