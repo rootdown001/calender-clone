@@ -1,23 +1,27 @@
 import { useEffect, useState } from "react";
+import { EventType } from "./types";
 
-export default function useLocalStorage<T>(
+export default function useLocalStorage(
   storageKey: string,
-  initialValue: T | (() => T)
-): [T, React.Dispatch<React.SetStateAction<T>>] {
+  initialValue: EventType[] | []
+) {
   const [value, setValue] = useState(() => {
     const tempGet = localStorage.getItem(storageKey);
     // see if value for storage key was in local storage
     if (tempGet == null) {
-      // are we passing initial value as function or value
-      if (typeof initialValue === "function") {
-        return (initialValue as () => T)();
-      } else {
-        return initialValue;
-      }
       // if it DOES exist, return that value as initial value
+      return initialValue;
     } else {
       // change back to JSON object with JSON.parse()
-      return JSON.parse(tempGet);
+      return JSON.parse(tempGet, (key, value) => {
+        if (key === "date" && typeof value === "string") {
+          const parsedDate = new Date(value);
+          if (!isNaN(parsedDate.getTime())) {
+            return parsedDate;
+          }
+        }
+        return value;
+      });
     }
   });
 

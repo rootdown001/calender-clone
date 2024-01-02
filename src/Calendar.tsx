@@ -18,18 +18,18 @@ import { EventType } from "./types";
 
 export default function Calendar() {
   // Event state
-  const [events, setEvents] = useLocalStorage<EventType[]>("events", []);
+  const [events, setEvents] = useLocalStorage("events", []);
   // Event Modal
   const [isEventFormOpen, setIsEventFormOpen] = useState(false);
   // is modal an edit
   const [isModalEdit, setIsModalEdit] = useState(false);
 
   // date of event to pass to event modal
-  const [dateOfEvent, setDateOfEvent] = useState<Date>();
-  console.log(
-    "🚀 ~ file: Calendar.tsx:29 ~ Calendar ~ dateOfEvent:",
-    typeof dateOfEvent
-  );
+  const [dateOfEvent, setDateOfEvent] = useState<Date>(new Date());
+  // console.log(
+  //   "🚀 ~ file: Calendar.tsx:29 ~ Calendar ~ dateOfEvent:",
+  //   typeof dateOfEvent
+  // );
 
   // define event list for individual day
   const [eventsDay, setEventsDay] = useState<EventType[]>([]);
@@ -100,8 +100,16 @@ export default function Calendar() {
                 <div className={`day-number ${isToday(date) && "today"}`}>
                   {format(date, "d")}
                 </div>
-
-                <div className="events"></div>
+                {/* 
+                <div className="events">
+                  {events.map((event) => {
+                    return (
+                      <div key={event.id}>{`${console.log(
+                        typeof event.date
+                      )}`}</div>
+                    );
+                  })}
+                </div> */}
 
                 {/* figure out events */}
                 {/* <div className="events">
@@ -137,7 +145,7 @@ export default function Calendar() {
         })}
       </div>
       <AddEvent
-        date={dateOfEvent}
+        dateOfEvent={dateOfEvent}
         isEventFormOpen={isEventFormOpen}
         isModalEdit={isModalEdit}
         onClose={() => setIsEventFormOpen(false)}

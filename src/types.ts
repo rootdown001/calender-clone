@@ -1,9 +1,12 @@
 export type EventType = {
-  readonly id: string;
-} & EventNoId;
-
-export type EventNoId = {
   date: Date;
+} & EventTypeNoDate;
+
+export type EventTypeNoDate = {
+  id: `${string}-${string}-${string}-${string}-${string}`;
+} & EventNoIdNoDate;
+
+export type EventNoIdNoDate = {
   name: string;
   allDay: boolean;
   startTime: string;

@@ -1,12 +1,12 @@
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { createPortal } from "react-dom";
-import { SubmitHandler, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import FormGroup from "./FormGroup";
-import { EventType } from "./types";
-import { EventNoId } from "./types";
+import { EventType, EventTypeNoDate } from "./types";
+import { EventNoIdNoDate } from "./types";
 
 type AddEventProps = {
-  date: Date | undefined;
+  dateOfEvent: Date;
   isEventFormOpen: boolean;
   onClose: () => void;
   events: EventType[];
@@ -15,7 +15,7 @@ type AddEventProps = {
 };
 
 export default function AddEvent({
-  date,
+  dateOfEvent,
   isEventFormOpen,
   onClose,
   events,
@@ -23,13 +23,16 @@ export default function AddEvent({
   isModalEdit,
 }: AddEventProps) {
   // set up useForm for handling
+
+  // console.log("dateOfEvent: ", dateOfEvent);
+
   const {
     register,
     handleSubmit,
     reset,
     watch,
     formState: { errors },
-  } = useForm<EventNoId>();
+  } = useForm<EventNoIdNoDate>();
 
   const [allDayState, setAllDayState] = useState(false);
 
@@ -38,17 +41,16 @@ export default function AddEvent({
     isEventFormOpen && setAllDayState(false);
   }, [isEventFormOpen]);
 
-  console.log("allDayState: ", allDayState);
+  // console.log("allDayState: ", allDayState);
 
   const startTimeWatch = watch("startTime");
 
-  const addNewEvent: SubmitHandler<EventNoId> = (data) => {
+  function addNewEvent(data: EventNoIdNoDate) {
     // console.log("🚀 ~ file: AddEvent.tsx:30 ~ addNewEvent ~ data:", data);
 
     // create new event object
     const newEvent = {
       id: crypto.randomUUID(),
-      date: date,
       name: data.name,
       allDay: !!data.allDay,
       startTime: data.startTime,
@@ -57,11 +59,11 @@ export default function AddEvent({
     };
 
     // Add the new event to the events array
-    setEvents([...events, newEvent]);
+    setEvents([...events, { ...newEvent, date: dateOfEvent }]);
     // Reset the form fields and close the form
     reset();
     onClose();
-  };
+  }
 
   return createPortal(
     <div className={`${isEventFormOpen && "modal"}`}>
@@ -182,13 +184,14 @@ export default function AddEvent({
               </label>
             </div>
           </FormGroup>
-          <FormGroup>
+          {/* <FormGroup>
             <input
               type="date"
-              {...(register("date"), { value: date })}
+              {...register("date")}
+              value={format(dateOfEvent, "MM")}
               style={{ display: "none" }}
             />
-          </FormGroup>
+          </FormGroup> */}
           <div className="row">
             <button className="btn btn-success" type="submit">
               Add
