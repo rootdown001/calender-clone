@@ -1,11 +1,11 @@
-import { useEffect, useState } from "react";
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { EventType } from "./types";
 
 export default function useLocalStorage(
   storageKey: string,
   initialValue: EventType[] | []
-) {
-  const [value, setValue] = useState(() => {
+): [EventType[], Dispatch<SetStateAction<EventType[]>>] {
+  const [value, setValue] = useState<EventType[]>(() => {
     const tempGet = localStorage.getItem(storageKey);
     // see if value for storage key was in local storage
     if (tempGet == null) {

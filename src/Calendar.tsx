@@ -100,16 +100,27 @@ export default function Calendar() {
                 <div className={`day-number ${isToday(date) && "today"}`}>
                   {format(date, "d")}
                 </div>
-                {/* 
+
                 <div className="events">
                   {events.map((event) => {
-                    return (
-                      <div key={event.id}>{`${console.log(
-                        typeof event.date
-                      )}`}</div>
-                    );
+                    if (event.date && date) {
+                      event.date.setHours(0, 0, 0, 0);
+                      date.setHours(0, 0, 0, 0);
+                      const date1 = event.date.getTime();
+                      const date2 = date.getTime();
+                      // console.log(date1 == date2);
+                      if (date1 == date2) {
+                        return (
+                          <button key={event.id} className={`event `}>
+                            <div className="event-name"> {event.name}</div>
+                          </button>
+                        );
+                      }
+                      return null;
+                    }
+                    return null;
                   })}
-                </div> */}
+                </div>
 
                 {/* figure out events */}
                 {/* <div className="events">
