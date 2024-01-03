@@ -100,27 +100,99 @@ export default function Calendar() {
                 <div className={`day-number ${isToday(date) && "today"}`}>
                   {format(date, "d")}
                 </div>
-
-                <div className="events">
-                  {events.map((event) => {
-                    if (event.date && date) {
-                      event.date.setHours(0, 0, 0, 0);
-                      date.setHours(0, 0, 0, 0);
-                      const date1 = event.date.getTime();
-                      const date2 = date.getTime();
-                      // console.log(date1 == date2);
-                      if (date1 == date2) {
-                        return (
-                          <button key={event.id} className={`event `}>
-                            <div className="event-name"> {event.name}</div>
-                          </button>
-                        );
-                      }
-                      return null;
+                {/* TODO: change so 1st events.map through and make mini array for day.  */}
+                {/* TODO: Then sort so all day buttons are 1st */}
+                {/* TODO: Then map through mini array with button /div below */}
+                {/* TODO: Fix formatting for left align buttons  */}
+                {events.map((event) => {
+                  if (event.date && date) {
+                    event.date.setHours(0, 0, 0, 0);
+                    date.setHours(0, 0, 0, 0);
+                    const date1 = event.date.getTime();
+                    const date2 = date.getTime();
+                    // console.log(date1 == date2);
+                    if (date1 == date2) {
+                      return (
+                        <div key={event.id} className="events">
+                          {/* all day event */}
+                          {event.allDay && (
+                            <button
+                              className={`all-day-event
+                             ${event.color == "blue" && "blue"} ${
+                                event.color == "green" && "green"
+                              } ${event.color == "red" && "red"} event`}
+                            >
+                              <div className="event-name">{event.name}</div>
+                            </button>
+                          )}
+                          {/* NOT all day event */}
+                          {!event.allDay && (
+                            <button className="event">
+                              <div className="event-name">{event.name}</div>
+                              <div
+                                className={`color-dot ${
+                                  event.color == "blue" && "blue"
+                                } ${event.color == "green" && "green"} ${
+                                  event.color == "red" && "red"
+                                }`}
+                              ></div>
+                              <div className="event-time">
+                                {event.startTime}
+                              </div>
+                              <div className="event-name">{event.name}</div>
+                            </button>
+                          )}
+                        </div>
+                      );
                     }
                     return null;
-                  })}
-                </div>
+                  }
+                  return null;
+                })}
+
+                {/* {events.map((event) => {
+                  if (event.date && date) {
+                    event.date.setHours(0, 0, 0, 0);
+                    date.setHours(0, 0, 0, 0);
+                    const date1 = event.date.getTime();
+                    const date2 = date.getTime();
+                    // console.log(date1 == date2);
+                    if (date1 == date2) {
+                      return (
+                        <div key={event.id} className="events">
+                          <button
+                            // all day event
+                            className={`event ${
+                              event.allDay && "all-day-event"
+                            } ${
+                              event.allDay && event.color == "blue" && "blue"
+                            } ${
+                              event.allDay && event.color == "green" && "green"
+                            } ${event.allDay && event.color == "red" && "red"}`}
+                          >
+                            <div className="event-name">{event.name}</div>
+                            <div
+                              className={`${!event.allDay && "color-dot"} ${
+                                !event.allDay && event.color == "blue" && "blue"
+                              } ${
+                                !event.allDay &&
+                                event.color == "green" &&
+                                "green"
+                              } ${
+                                !event.allDay && event.color == "red" && "red"
+                              }`}
+                            ></div>
+                            <div className={`${!event.allDay && "event-time"}`}>
+                              {!event.allDay && event.startTime}
+                            </div>
+                          </button>
+                        </div>
+                      );
+                    }
+                    return null;
+                  }
+                  return null;
+                })} */}
 
                 {/* figure out events */}
                 {/* <div className="events">
