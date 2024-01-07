@@ -9,6 +9,7 @@ import {
   isToday,
   subMonths,
   addMonths,
+  parse,
 } from "date-fns";
 import { startOfMonth } from "date-fns/fp";
 import { useState } from "react";
@@ -59,6 +60,11 @@ export default function Calendar() {
           const startTimeA = new Date(a.startTime);
           const startTimeB = new Date(b.startTime);
           return startTimeA - startTimeB; // Compare startTime values
+        } else if (a.allDay && b.allDay) {
+          // If both events are all-day
+          const colorA = a.color;
+          const colorB = b.color;
+          return colorA.localeCompare(colorB); // Compare color values
         } else {
           return 0; // No change in order if both events are all-day
         }
@@ -170,7 +176,12 @@ export default function Calendar() {
                               event.color == "red" && "red"
                             }`}
                           ></div>
-                          <div className="event-time">{event.startTime}</div>
+                          <div className="event-time">
+                            {format(
+                              parse(event.startTime, "HH:mm", new Date()),
+                              "h:mm aaaaa"
+                            )}
+                          </div>
                           <div className="event-name">{event.name}</div>
                         </button>
                       )}
