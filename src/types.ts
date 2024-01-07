@@ -1,3 +1,5 @@
+import { Dispatch, SetStateAction } from "react";
+
 export type EventType = {
   date: Date;
 } & EventTypeNoDate;
@@ -12,4 +14,14 @@ export type EventNoIdNoDate = {
   startTime: string;
   endTime: string;
   color: string;
+};
+
+export type AddEventProps = {
+  dateOfEvent: Date;
+  isEventFormOpen: boolean;
+  isModalEdit: boolean;
+  onClose: () => void;
+  events: EventType[];
+  setEvents: Dispatch<SetStateAction<EventType[]>>;
+  eventToPass?: EventType;
 };

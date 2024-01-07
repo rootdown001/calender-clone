@@ -2,18 +2,8 @@ import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { useForm } from "react-hook-form";
 import FormGroup from "./FormGroup";
-import { EventType, EventTypeNoDate } from "./types";
-import { EventNoIdNoDate } from "./types";
+import { EventNoIdNoDate, AddEventProps } from "./types";
 import { format } from "date-fns";
-
-type AddEventProps = {
-  dateOfEvent: Date;
-  isEventFormOpen: boolean;
-  onClose: () => void;
-  events: EventType[];
-  setEvents: Dispatch<SetStateAction<EventType[]>>;
-  isModalEdit: boolean;
-};
 
 export default function AddEvent({
   dateOfEvent,
@@ -22,6 +12,7 @@ export default function AddEvent({
   events,
   setEvents,
   isModalEdit,
+  eventToPass,
 }: AddEventProps) {
   // set up useForm for handling
 
@@ -87,6 +78,7 @@ export default function AddEvent({
             <input
               type="text"
               id="name"
+              defaultValue={eventToPass !== undefined ? eventToPass.name : ""}
               {...register("name", {
                 required: { value: true, message: "Required" },
               })}
@@ -101,7 +93,9 @@ export default function AddEvent({
             <input
               type="checkbox"
               id="all-day"
-              defaultChecked={false}
+              defaultChecked={
+                eventToPass !== undefined ? eventToPass.allDay : false
+              }
               onClick={(e) => {
                 const target = e.target as HTMLInputElement;
                 setAllDayState(target.checked);
@@ -120,6 +114,9 @@ export default function AddEvent({
                 type="time"
                 disabled={!!allDayState}
                 id="start-time"
+                defaultValue={
+                  eventToPass !== undefined ? eventToPass.startTime : ""
+                }
                 {...register("startTime", {
                   required: { value: !allDayState, message: "Required" },
                 })}
@@ -135,6 +132,9 @@ export default function AddEvent({
                 type="time"
                 disabled={allDayState}
                 id="end-time"
+                defaultValue={
+                  eventToPass !== undefined ? eventToPass.endTime : ""
+                }
                 {...register("endTime", {
                   required: { value: !allDayState, message: "Required" },
                   validate: (endTime) => {

@@ -15,7 +15,7 @@ import { startOfMonth } from "date-fns/fp";
 import { useState } from "react";
 import AddEvent from "./AddEvent";
 import useLocalStorage from "./useLocalStorage";
-import { EventType } from "./types";
+import { EventType, AddEventProps } from "./types";
 
 export default function Calendar() {
   // Event state
@@ -24,9 +24,17 @@ export default function Calendar() {
   const [isEventFormOpen, setIsEventFormOpen] = useState(false);
   // is modal an edit
   const [isModalEdit, setIsModalEdit] = useState(false);
+  // event to prefill modal
+  const [eventToPass, setEventToPass] = useState<EventType>();
 
   // date of event to pass to event modal
   const [dateOfEvent, setDateOfEvent] = useState<Date>(new Date());
+
+  function openModal(event) {
+    setIsEventFormOpen(true);
+    setIsModalEdit(true);
+    setEventToPass(event);
+  }
 
   function filterArrayByDay(fxnEvents: EventType[], fxnDate: Date) {
     let dayArray = [];
@@ -145,13 +153,17 @@ export default function Calendar() {
            ${event.color == "blue" && "blue"} ${
                             event.color == "green" && "green"
                           } ${event.color == "red" && "red"} event`}
+                          onClick={() => openModal(event)}
                         >
                           <div className="event-name">{event.name}</div>
                         </button>
                       )}
                       {/* NOT all day event */}
                       {!event.allDay && (
-                        <button className="event">
+                        <button
+                          className="event"
+                          onClick={() => openModal(event)}
+                        >
                           <div
                             className={`color-dot ${
                               event.color == "blue" && "blue"
@@ -178,14 +190,21 @@ export default function Calendar() {
           );
         })}
       </div>
-      <AddEvent
-        dateOfEvent={dateOfEvent}
-        isEventFormOpen={isEventFormOpen}
-        isModalEdit={isModalEdit}
-        onClose={() => setIsEventFormOpen(false)}
-        events={events}
-        setEvents={setEvents}
-      />
+      {isEventFormOpen && (
+        <AddEvent
+          dateOfEvent={dateOfEvent}
+          isEventFormOpen={isEventFormOpen}
+          isModalEdit={isModalEdit}
+          onClose={() => {
+            setIsEventFormOpen(false);
+            setIsModalEdit(false);
+            setEventToPass(undefined);
+          }}
+          events={events}
+          setEvents={setEvents}
+          eventToPass={eventToPass}
+        />
+      )}
     </div>
   );
 }
