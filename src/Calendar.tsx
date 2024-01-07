@@ -27,12 +27,8 @@ export default function Calendar() {
 
   // date of event to pass to event modal
   const [dateOfEvent, setDateOfEvent] = useState<Date>(new Date());
-  // console.log(
-  //   "🚀 ~ file: Calendar.tsx:29 ~ Calendar ~ dateOfEvent:",
-  //   typeof dateOfEvent
-  // );
 
-  function filterArrayByDay(fxnEvents, fxnDate) {
+  function filterArrayByDay(fxnEvents: EventType[], fxnDate: Date) {
     let dayArray = [];
     dayArray = fxnEvents.filter((event) => {
       if (event.date && fxnDate) {
@@ -40,16 +36,14 @@ export default function Calendar() {
         fxnDate.setHours(0, 0, 0, 0);
         const date1 = event.date.getTime();
         const date2 = fxnDate.getTime();
-        // console.log(date1 == date2);
         if (date1 == date2) {
-          // console.log("event passed: ", event);
           return event;
         }
       }
     });
-    console.log("dayArray: ", dayArray);
 
-    function sortEvents(dayArray) {
+    // function to filter out event array for day then sort
+    function sortEvents(dayArray: EventType[]) {
       return dayArray.sort((a, b) => {
         if (a.allDay && !b.allDay) {
           return -1; // `a` should come before `b`
@@ -57,8 +51,8 @@ export default function Calendar() {
           return 1; // `a` should come after `b`
         } else if (!a.allDay && !b.allDay) {
           // If both events are not all-day
-          const startTimeA = new Date(a.startTime);
-          const startTimeB = new Date(b.startTime);
+          const startTimeA = Number(new Date(a.startTime));
+          const startTimeB = Number(new Date(b.startTime));
           return startTimeA - startTimeB; // Compare startTime values
         } else if (a.allDay && b.allDay) {
           // If both events are all-day
@@ -80,14 +74,6 @@ export default function Calendar() {
     start: startOfWeek(startOfMonth(visibleMonth)),
     end: endOfWeek(endOfMonth(visibleMonth)),
   });
-  //   console.log(
-  //     "🚀 ~ file: Calendar.tsx:18 ~ Calendar ~ visibleDates:",
-  //     visibleDates
-  //   );
-
-  // EventForm functions
-
-  // calander functions
 
   function showPreviousMonth() {
     setVisibleMonth((currentMonth) => {
@@ -149,9 +135,6 @@ export default function Calendar() {
                 >
                   +
                 </button>
-
-                {/* TODO: Fix formatting for left align buttons  */}
-
                 {filterArrayByDay(events, date).map((event: EventType) => {
                   return (
                     <div key={event.id} className="events">

@@ -34,6 +34,6 @@ export default function useLocalStorage(
     }
   }, [storageKey, value]);
 
-  console.log("value: ", value);
+  // console.log("value: ", value);
   return [value, setValue];
 }
