@@ -156,7 +156,11 @@ export default function AddEvent({
                 type="radio"
                 value="blue"
                 id="blue"
-                defaultChecked
+                checked={
+                  eventToPass !== undefined && eventToPass.color === "blue"
+                    ? true
+                    : false
+                }
                 className="color-radio"
                 {...register("color")}
               />
@@ -167,6 +171,11 @@ export default function AddEvent({
                 type="radio"
                 value="red"
                 id="red"
+                checked={
+                  eventToPass !== undefined && eventToPass.color === "red"
+                    ? true
+                    : false
+                }
                 className="color-radio"
                 {...register("color")}
               />
@@ -177,6 +186,11 @@ export default function AddEvent({
                 type="radio"
                 value="green"
                 id="green"
+                checked={
+                  eventToPass !== undefined && eventToPass.color === "green"
+                    ? true
+                    : false
+                }
                 className="color-radio"
                 {...register("color")}
               />
