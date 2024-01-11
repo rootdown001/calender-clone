@@ -24,7 +24,7 @@ export default function AddEvent({
     reset,
     watch,
     formState: { errors },
-  } = useForm<EventNoIdNoDate>();
+  } = useForm<EventNoIdNoDate | EventType>();
 
   const [allDayState, setAllDayState] = useState(false);
 
@@ -38,10 +38,14 @@ export default function AddEvent({
   const startTimeWatch = watch("startTime");
   // const colorWatch = watch("color");
 
-  function saveEditEvent(data: EventType) {}
+  function saveEditEvent(data: EventType) {
+    console.log("🚀 ~ file: AddEvent.tsx:30 ~ addNewEvent ~ data:", data);
+
+    // TODO: finish logic for saveEditEvent
+  }
 
   function addNewEvent(data: EventNoIdNoDate) {
-    console.log("🚀 ~ file: AddEvent.tsx:30 ~ addNewEvent ~ data:", data);
+    // console.log("🚀 ~ file: AddEvent.tsx:30 ~ addNewEvent ~ data:", data);
 
     // create new event object
     const newEvent = {
@@ -60,6 +64,14 @@ export default function AddEvent({
     onClose();
   }
 
+  function onSubmit(data: EventNoIdNoDate | EventType) {
+    if (!isModalEdit) {
+      addNewEvent(data as EventNoIdNoDate);
+    } else {
+      saveEditEvent(data as EventType);
+    }
+  }
+
   return createPortal(
     <div className={`${isEventFormOpen && "modal"}`}>
       <div className="overlay"></div>
@@ -71,7 +83,7 @@ export default function AddEvent({
             &times;
           </button>
         </div>
-        <form onSubmit={handleSubmit(addNewEvent)}>
+        <form onSubmit={handleSubmit(onSubmit)}>
           {/* Form inputs */}
           <FormGroup
             classGroup={"form-group"}
@@ -194,97 +206,6 @@ export default function AddEvent({
                 <span className="sr-only">Green</span>
               </label>
             </div>
-
-            {/* {isModalEdit ? (
-              <div className="row left">
-                <Controller
-                  name="color"
-                  control={control}
-                  defaultValue=""
-                  render={({ field }) => (
-                    <>
-                      {console.log("field: ", field)}
-                      <input
-                        type="radio"
-                        value="blue"
-                        id="blue"
-                        defaultChecked={
-                          eventToPass !== undefined &&
-                          eventToPass.color === "blue"
-                        }
-                        className="color-radio"
-                        onChange={(e) => field.onChange(e.target.value)}
-                      />
-                      <label htmlFor="blue">
-                        <span className="sr-only">Blue</span>
-                      </label>
-                      <input
-                        type="radio"
-                        value="red"
-                        id="red"
-                        defaultChecked={
-                          eventToPass !== undefined &&
-                          eventToPass.color === "red"
-                        }
-                        className="color-radio"
-                        onChange={(e) => field.onChange(e.target.value)}
-                      />
-                      <label htmlFor="red">
-                        <span className="sr-only">Red</span>
-                      </label>
-                      <input
-                        type="radio"
-                        value="green"
-                        id="green"
-                        defaultChecked={
-                          eventToPass !== undefined &&
-                          eventToPass.color === "green"
-                        }
-                        className="color-radio"
-                        onChange={(e) => field.onChange(e.target.value)}
-                      />
-                      <label htmlFor="green">
-                        <span className="sr-only">Green</span>
-                      </label>
-                    </>
-                  )}
-                />
-              </div>
-            ) : (
-              <div className="row left">
-                <input
-                  type="radio"
-                  value="blue"
-                  id="blue"
-                  defaultChecked
-                  className="color-radio"
-                  {...register("color")}
-                />
-                <label htmlFor="blue">
-                  <span className="sr-only">Blue</span>
-                </label>
-                <input
-                  type="radio"
-                  value="red"
-                  id="red"
-                  className="color-radio"
-                  {...register("color")}
-                />
-                <label htmlFor="red">
-                  <span className="sr-only">Red</span>
-                </label>
-                <input
-                  type="radio"
-                  value="green"
-                  id="green"
-                  className="color-radio"
-                  {...register("color")}
-                />
-                <label htmlFor="green">
-                  <span className="sr-only">Green</span>
-                </label>
-              </div>
-            )} */}
           </FormGroup>
 
           <div className="row">
