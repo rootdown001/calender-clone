@@ -25,3 +25,7 @@ export type AddEventProps = {
   setEvents: Dispatch<SetStateAction<EventType[]>>;
   eventToPass?: EventType;
 };
+
+export type ButtonRowProps = {
+  isModalEdit: boolean;
+};

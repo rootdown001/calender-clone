@@ -30,7 +30,7 @@ export default function Calendar() {
   // date of event to pass to event modal
   const [dateOfEvent, setDateOfEvent] = useState<Date>(new Date());
 
-  function openModal(event) {
+  function openModal(event: EventType) {
     setIsEventFormOpen(true);
     setIsModalEdit(true);
     setEventToPass(event);
@@ -66,13 +66,20 @@ export default function Calendar() {
           // If both events are all-day
           const colorA = a.color;
           const colorB = b.color;
-          return colorA.localeCompare(colorB); // Compare color values
+          if (colorA && colorB) {
+            return colorA.localeCompare(colorB); // Compare color values
+          } else if (colorA) {
+            return -1; // `a` should come before `b`
+          } else if (colorB) {
+            return 1; // `a` should come after `b`
+          } else {
+            return 0; // No change in order if both events have no color
+          }
         } else {
           return 0; // No change in order if both events are all-day
         }
       });
     }
-
     return sortEvents(dayArray);
   }
 
