@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
-import { Controller, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import FormGroup from "./FormGroup";
 import { EventNoIdNoDate, AddEventProps, EventType } from "./types";
 import { format } from "date-fns";
@@ -14,10 +14,6 @@ export default function AddEvent({
   isModalEdit,
   eventToPass,
 }: AddEventProps) {
-  // set up useForm for handling
-
-  // console.log("dateOfEvent: ", dateOfEvent);
-
   const {
     register,
     handleSubmit,
@@ -27,27 +23,16 @@ export default function AddEvent({
   } = useForm<EventNoIdNoDate | EventType>();
 
   const [allDayState, setAllDayState] = useState(false);
+  const startTimeWatch = watch("startTime");
 
-  // reset allDayState when isEventFormOpen changes
+  // reset allDayState when isEventFormOpen or eventToPass changes
   useEffect(() => {
     isEventFormOpen && setAllDayState(false);
-  }, [isEventFormOpen]);
+    eventToPass?.allDay && setAllDayState(true);
+  }, [isEventFormOpen, eventToPass]);
 
-  // console.log("allDayState: ", allDayState);
-
-  const startTimeWatch = watch("startTime");
-  // const colorWatch = watch("color");
-
-  function saveEditEvent(data: EventType) {
-    console.log("🚀 ~ file: AddEvent.tsx:30 ~ addNewEvent ~ data:", data);
-
-    // TODO: finish logic for saveEditEvent
-  }
-
+  // function to add new event
   function addNewEvent(data: EventNoIdNoDate) {
-    // console.log("🚀 ~ file: AddEvent.tsx:30 ~ addNewEvent ~ data:", data);
-
-    // create new event object
     const newEvent = {
       id: crypto.randomUUID(),
       name: data.name,
@@ -64,6 +49,37 @@ export default function AddEvent({
     onClose();
   }
 
+  // function to save an edited event
+  function saveEditEvent(data: EventType) {
+    setEvents(
+      events.map((event) => {
+        if (event.id === eventToPass?.id) {
+          return {
+            ...event,
+            name: data.name,
+            allDay: data.allDay,
+            startTime: data.startTime,
+            endTime: data.endTime,
+            color: data.color,
+          };
+        }
+        return event;
+      })
+    );
+    // Reset the form fields and close the form
+    reset();
+    onClose();
+  }
+
+  // function to delete an edit event
+  function deleteEditEvent() {
+    setEvents(events.filter((event) => event.id !== eventToPass?.id));
+    // Reset the form fields and close the form
+    reset();
+    onClose();
+  }
+
+  // function to handle form submissions
   function onSubmit(data: EventNoIdNoDate | EventType) {
     if (!isModalEdit) {
       addNewEvent(data as EventNoIdNoDate);
@@ -72,6 +88,7 @@ export default function AddEvent({
     }
   }
 
+  // create a portal to render the form outside of the main DOM tree
   return createPortal(
     <div className={`${isEventFormOpen && "modal"}`}>
       <div className="overlay"></div>
@@ -84,7 +101,7 @@ export default function AddEvent({
           </button>
         </div>
         <form onSubmit={handleSubmit(onSubmit)}>
-          {/* Form inputs */}
+          {/* form group for event name */}
           <FormGroup
             classGroup={"form-group"}
             errorMessage={errors?.name?.message}
@@ -99,6 +116,8 @@ export default function AddEvent({
               })}
             />
           </FormGroup>
+
+          {/* form group for all day checkbox */}
           <FormGroup
             classGroup={"form-group checkbox"}
             errorMessage={errors?.allDay?.message}
@@ -119,6 +138,7 @@ export default function AddEvent({
             />
           </FormGroup>
 
+          {/* form group for start and end times */}
           <div className="row">
             <FormGroup
               classGroup={"form-group"}
@@ -161,6 +181,8 @@ export default function AddEvent({
               />
             </FormGroup>
           </div>
+
+          {/* form group for event color */}
           <FormGroup
             classGroup={"form-group"}
             // errorMessage={errors?.color?.message}
@@ -174,7 +196,6 @@ export default function AddEvent({
                 defaultChecked={
                   !isModalEdit ? true : eventToPass?.color === "blue"
                 }
-                // checked={!isModalEdit && colorWatch === "blue"}
                 className="color-radio"
                 {...register("color")}
               />
@@ -186,7 +207,6 @@ export default function AddEvent({
                 value="red"
                 id="red"
                 defaultChecked={eventToPass?.color === "red"}
-                // checked={!isModalEdit && colorWatch === "red"}
                 className="color-radio"
                 {...register("color")}
               />
@@ -198,7 +218,6 @@ export default function AddEvent({
                 value="green"
                 id="green"
                 defaultChecked={eventToPass?.color === "green"}
-                // checked={!isModalEdit && colorWatch === "green"}
                 className="color-radio"
                 {...register("color")}
               />
@@ -208,12 +227,17 @@ export default function AddEvent({
             </div>
           </FormGroup>
 
+          {/* form submission buttons */}
           <div className="row">
             <button className="btn btn-success" type="submit">
               {isModalEdit ? "Save" : "Add"}
             </button>
             {isModalEdit && (
-              <button className="btn btn-delete" type="button">
+              <button
+                className="btn btn-delete"
+                type="button"
+                onClick={() => deleteEditEvent()}
+              >
                 Delete
               </button>
             )}
