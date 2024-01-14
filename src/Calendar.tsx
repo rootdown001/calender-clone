@@ -15,7 +15,7 @@ import { startOfMonth } from "date-fns/fp";
 import { useState } from "react";
 import AddEvent from "./AddEvent";
 import useLocalStorage from "./useLocalStorage";
-import { EventType, AddEventProps } from "./types";
+import { EventType } from "./types";
 
 export default function Calendar() {
   // Event state
@@ -29,6 +29,20 @@ export default function Calendar() {
 
   // date of event to pass to event modal
   const [dateOfEvent, setDateOfEvent] = useState<Date>(new Date());
+
+  // create intersection observer for each event button
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((element) => {
+      if (!element.isIntersecting) {
+        console.log("element not visible: ", element.target);
+      }
+    });
+  });
+
+  // TODO: work on this
+  document
+    .querySelectorAll(".event")
+    .forEach((element) => observer.observe(element));
 
   function openModal(event: EventType) {
     setIsEventFormOpen(true);
@@ -152,42 +166,44 @@ export default function Calendar() {
                 </button>
                 {filterArrayByDay(events, date).map((event: EventType) => {
                   return (
-                    <div key={event.id} className="events">
-                      {/* all day event */}
-                      {event.allDay && (
-                        <button
-                          className={`all-day-event
-           ${event.color == "blue" && "blue"} ${
-                            event.color == "green" && "green"
-                          } ${event.color == "red" && "red"} event`}
-                          onClick={() => openModal(event)}
-                        >
-                          <div className="event-name">{event.name}</div>
-                        </button>
-                      )}
-                      {/* NOT all day event */}
-                      {!event.allDay && (
-                        <button
-                          className="event"
-                          onClick={() => openModal(event)}
-                        >
-                          <div
-                            className={`color-dot ${
-                              event.color == "blue" && "blue"
-                            } ${event.color == "green" && "green"} ${
-                              event.color == "red" && "red"
-                            }`}
-                          ></div>
-                          <div className="event-time">
-                            {format(
-                              parse(event.startTime, "HH:mm", new Date()),
-                              "h:mm aaaaa"
-                            )}
-                          </div>
-                          <div className="event-name">{event.name}</div>
-                        </button>
-                      )}
-                    </div>
+                    <>
+                      <div key={event.id} className="events">
+                        {/* all day event */}
+                        {event.allDay && (
+                          <button
+                            className={`all-day-event
+                            ${event.color == "blue" && "blue"} ${
+                              event.color == "green" && "green"
+                            } ${event.color == "red" && "red"} event`}
+                            onClick={() => openModal(event)}
+                          >
+                            <div className="event-name">{event.name}</div>
+                          </button>
+                        )}
+                        {/* NOT all day event */}
+                        {!event.allDay && (
+                          <button
+                            className="event"
+                            onClick={() => openModal(event)}
+                          >
+                            <div
+                              className={`color-dot ${
+                                event.color == "blue" && "blue"
+                              } ${event.color == "green" && "green"} ${
+                                event.color == "red" && "red"
+                              }`}
+                            ></div>
+                            <div className="event-time">
+                              {format(
+                                parse(event.startTime, "HH:mm", new Date()),
+                                "h:mm aaaaa"
+                              )}
+                            </div>
+                            <div className="event-name">{event.name}</div>
+                          </button>
+                        )}
+                      </div>
+                    </>
                   );
                 })}
 
