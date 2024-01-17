@@ -19,6 +19,7 @@ export default function CalendarDay({
   openModal,
   renderExtra,
 }: CalendarDayProps) {
+  console.log("🚀 ~ eventsForDay:", eventsForDay);
   const dayContainerRef = useRef<HTMLDivElement>(null);
   const [numberBelow, setNumberBelow] = useState(0);
 
@@ -62,22 +63,6 @@ export default function CalendarDay({
 
     return () => observer.disconnect();
   }, [eventsForDay]);
-
-  // // create intersection observer for each event button
-  // const eventAll = document.querySelectorAll(".event");
-
-  // const observer = new IntersectionObserver((entries) => {
-  //   entries.forEach((element) => {
-  //     if (!element.isIntersecting) {
-  //       console.log("element rect: ", element.boundingClientRect);
-  //     }
-  //   });
-  // });
-
-  // // TODO: work on this
-  // eventAll.forEach((e) => {
-  //   observer.observe(e);
-  // });
 
   return (
     <>

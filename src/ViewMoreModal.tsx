@@ -15,6 +15,8 @@ export default function ViewMoreModal({
   isOpen,
   onClose,
 }: ViewMoreModalProps) {
+  //   isOpen && console.log("🚀 ~ eventsForDay:", eventsForDay);
+
   return (
     <ModalLogic isOpen={isOpen} onClose={onClose}>
       <div className="modal-title">
@@ -25,7 +27,7 @@ export default function ViewMoreModal({
       </div>
       <div className="events">
         {eventsForDay.map((event: EventType) => {
-          console.log("event: ", event);
+          //   console.log("event: ", event);
           return (
             <div key={event.id}>
               {/* all day event */}

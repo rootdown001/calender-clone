@@ -31,8 +31,8 @@ export default function ModalLogic({
     if (!isOpen && prevIsOpen.current) {
       setIsClosing(true);
     }
-    console.log("is open: ", isOpen);
-    console.log("prevIsOpen.current: ", prevIsOpen.current);
+    // console.log("is open: ", isOpen);
+    // console.log("prevIsOpen.current: ", prevIsOpen.current);
 
     prevIsOpen.current = isOpen;
   }, [isOpen]);

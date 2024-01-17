@@ -11,7 +11,7 @@ import {
   addMonths,
 } from "date-fns";
 import { startOfMonth } from "date-fns/fp";
-import { useDebugValue, useState } from "react";
+import { useDebugValue, useMemo, useState } from "react";
 import AddEvent from "./AddEvent";
 import useLocalStorage from "./useLocalStorage";
 import { EventType } from "./types";
@@ -91,10 +91,17 @@ export default function Calendar() {
 
   //   Calander Hooks
   const [visibleMonth, setVisibleMonth] = useState(new Date());
-  const visibleDates: Date[] = eachDayOfInterval({
-    start: startOfWeek(startOfMonth(visibleMonth)),
-    end: endOfWeek(endOfMonth(visibleMonth)),
-  });
+  const visibleDates: Date[] = useMemo(() => {
+    return eachDayOfInterval({
+      start: startOfWeek(startOfMonth(visibleMonth)),
+      end: endOfWeek(endOfMonth(visibleMonth)),
+    });
+  }, [visibleMonth]);
+
+  // const visibleDates: Date[] = eachDayOfInterval({
+  //   start: startOfWeek(startOfMonth(visibleMonth)),
+  //   end: endOfWeek(endOfMonth(visibleMonth)),
+  // });
 
   function showPreviousMonth() {
     setVisibleMonth((currentMonth) => {
@@ -158,27 +165,28 @@ export default function Calendar() {
                 </button>
               </div>
               {filterArrayByDay(events, date).length > 0 && (
-                <CalendarDay
-                  eventsForDay={filterArrayByDay(events, date)}
-                  openModal={openModal}
-                  renderExtra={(amt) => (
-                    <>
-                      <button
-                        onClick={() => setIsViewMoreOpen(true)}
-                        className="events-view-more-btn"
-                      >
-                        +{amt} More
-                      </button>
-
-                      <ViewMoreModal
-                        eventsForDay={filterArrayByDay(events, date)}
-                        openModal={openModal}
-                        isOpen={isViewMoreOpen}
-                        onClose={() => setIsViewMoreOpen(false)}
-                      />
-                    </>
-                  )}
-                />
+                <>
+                  <CalendarDay
+                    eventsForDay={filterArrayByDay(events, date)}
+                    openModal={openModal}
+                    renderExtra={(amt) => (
+                      <>
+                        <button
+                          onClick={() => setIsViewMoreOpen(true)}
+                          className="events-view-more-btn"
+                        >
+                          +{amt} More
+                        </button>
+                        <ViewMoreModal
+                          eventsForDay={filterArrayByDay(events, date)}
+                          openModal={openModal}
+                          isOpen={isViewMoreOpen}
+                          onClose={() => setIsViewMoreOpen(false)}
+                        />
+                      </>
+                    )}
+                  />
+                </>
               )}
             </div>
           );
