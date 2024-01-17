@@ -16,16 +16,6 @@ export type EventNoIdNoDate = {
   color: string;
 };
 
-export type AddEventProps = {
-  dateOfEvent: Date;
-  isEventFormOpen: boolean;
-  isModalEdit: boolean;
-  onClose: () => void;
-  events: EventType[];
-  setEvents: Dispatch<SetStateAction<EventType[]>>;
-  eventToPass?: EventType;
-};
-
 export type ButtonRowProps = {
   isModalEdit: boolean;
 };

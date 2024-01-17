@@ -224,7 +224,6 @@ body {
   width: 100%;
   border: none;
   font-size: 1rem;
-  padding: 0;
 }
 
 .all-day-event {
@@ -278,8 +277,8 @@ body {
   flex-grow: 1;
   overflow: hidden;
   /* added to fix width */
-  display: block;
-  width: 100%;
+  /* display: block;
+  width: 100%; */
 }
 
 .events-view-more-btn {
