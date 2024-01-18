@@ -1,109 +1,137 @@
-import {
-  Dispatch,
-  SetStateAction,
-  useLayoutEffect,
-  useRef,
-  useState,
-} from "react";
+import { useMemo, useState } from "react";
 import { EventType } from "./types";
-import { format, parse } from "date-fns";
+import { format, isBefore, isSameMonth, isToday } from "date-fns";
+import CheckExtraEvents from "./CheckExtraEvents";
+import ViewMoreModal from "./ViewMoreModal";
+import AddEvent from "./AddEvent";
 
 type CalendarDayProps = {
   eventsForDay: EventType[];
-  openModal: (event: EventType) => void;
-  renderExtra: (amount: number) => React.ReactNode;
+  date: Date;
+  visibleMonth: Date;
+  index: number;
+  events: EventType[];
+  setEvents: React.Dispatch<React.SetStateAction<EventType[]>>;
 };
 
 export default function CalendarDay({
   eventsForDay,
-  openModal,
-  renderExtra,
+  date,
+  visibleMonth,
+  index,
+  events,
+  setEvents,
 }: CalendarDayProps) {
-  console.log("🚀 ~ eventsForDay:", eventsForDay);
-  const dayContainerRef = useRef<HTMLDivElement>(null);
-  const [numberBelow, setNumberBelow] = useState(0);
+  // state for view more modal
+  const [isViewMoreOpen, setIsViewMoreOpen] = useState(false);
 
-  // useLayoutEffect to see if events will overflow
-  useLayoutEffect(() => {
-    //exit if ref is null
-    if (dayContainerRef.current == null) return;
+  // Event Modal
+  const [isEventFormOpen, setIsEventFormOpen] = useState(false);
+  // is modal an edit
+  const [isModalEdit, setIsModalEdit] = useState(false);
+  // event to prefill modal
+  const [eventToPass, setEventToPass] = useState<EventType>();
 
-    // start ResizeObserver
-    const observer = new ResizeObserver((entries) => {
-      const containerElement = entries[0]?.target;
+  // date of event to pass to event modal
+  const [dateOfEvent, setDateOfEvent] = useState<Date>(new Date());
 
-      if (containerElement == null) return;
-      const children =
-        containerElement.querySelectorAll<HTMLElement>("[data-item]");
-      // console.log("🚀 ~ observer ~ children:", children);
+  function openModal(event: EventType) {
+    setIsEventFormOpen(true);
+    setIsModalEdit(true);
+    setEventToPass(event);
+  }
 
-      const overflowElement =
-        containerElement.parentElement?.querySelector<HTMLElement>(
-          "[data-overflow]"
-        );
-      // console.log("🚀 ~ observer ~ overflowElement:", overflowElement);
-      if (overflowElement != null) overflowElement.style.display = "none";
-      children.forEach((child) => child.style.removeProperty("display"));
-      let amount = 0;
-      for (let i = children.length - 1; i >= 0; i--) {
-        const child = children[i];
-
-        if (containerElement.scrollHeight <= containerElement.clientHeight) {
-          break;
+  // useMemo to sort
+  const sortEvents = useMemo(() => {
+    return eventsForDay.sort((a, b) => {
+      if (a.allDay && !b.allDay) {
+        return -1; // `a` should come before `b`
+      } else if (!a.allDay && b.allDay) {
+        return 1; // `a` should come after `b`
+      } else if (!a.allDay && !b.allDay) {
+        // If both events are not all-day
+        const startTimeA = Number(new Date(a.startTime));
+        const startTimeB = Number(new Date(b.startTime));
+        return startTimeA - startTimeB; // Compare startTime values
+      } else if (a.allDay && b.allDay) {
+        // If both events are all-day
+        const colorA = a.color;
+        const colorB = b.color;
+        if (colorA && colorB) {
+          return colorA.localeCompare(colorB); // Compare color values
+        } else if (colorA) {
+          return -1; // `a` should come before `b`
+        } else if (colorB) {
+          return 1; // `a` should come after `b`
+        } else {
+          return 0; // No change in order if both events have no color
         }
-        amount = children.length - i;
-        child.style.display = "none";
-        overflowElement?.style.removeProperty("display");
+      } else {
+        return 0; // No change in order if both events are all-day
       }
-      setNumberBelow(amount);
-      // console.log(date, eventsBelow);
     });
-
-    observer.observe(dayContainerRef.current);
-
-    return () => observer.disconnect();
   }, [eventsForDay]);
 
   return (
-    <>
-      <div className="events" ref={dayContainerRef}>
-        {eventsForDay.map((event: EventType) => {
-          return (
-            <div data-item key={event.id}>
-              {/* all day event */}
-              {event.allDay && (
-                <button
-                  className={`all-day-event
-                    ${event.color == "blue" && "blue"} ${
-                    event.color == "green" && "green"
-                  } ${event.color == "red" && "red"} event`}
-                  onClick={() => openModal(event)}
-                >
-                  <div className="event-name">{event.name}</div>
-                </button>
-              )}
-              {/* NOT all day event */}
-              {!event.allDay && (
-                <button className="event" onClick={() => openModal(event)}>
-                  <div
-                    className={`color-dot ${event.color == "blue" && "blue"} ${
-                      event.color == "green" && "green"
-                    } ${event.color == "red" && "red"}`}
-                  ></div>
-                  <div className="event-time">
-                    {format(
-                      parse(event.startTime, "HH:mm", new Date()),
-                      "h:mm aaaaa"
-                    )}
-                  </div>
-                  <div className="event-name">{event.name}</div>
-                </button>
-              )}
-            </div>
-          );
-        })}
+    <div
+      key={date.toDateString()}
+      className={`day ${!isSameMonth(date, visibleMonth) && "non-month-day"} ${
+        isBefore(
+          format(date, "MM/dd/yyyy"),
+          format(new Date(), "MM/dd/yyyy")
+        ) && "old-month-day"
+      }`}
+    >
+      <div className="day-header">
+        <div className="week-name">{index < 7 && format(date, "EE")}</div>
+        <div className={`day-number ${isToday(date) && "today"}`}>
+          {format(date, "d")}
+        </div>
+        <button
+          className="add-event-btn"
+          onClick={() => {
+            setIsEventFormOpen(true);
+            setDateOfEvent(date);
+          }}
+        >
+          +
+        </button>
       </div>
-      <div data-overflow>{renderExtra(numberBelow)}</div>
-    </>
+      {sortEvents.length > 0 && (
+        <CheckExtraEvents
+          eventsToRender={sortEvents}
+          openModal={openModal}
+          renderExtra={(amt) => (
+            <>
+              <button
+                onClick={() => setIsViewMoreOpen(true)}
+                className="events-view-more-btn"
+              >
+                +{amt} More
+              </button>
+              <ViewMoreModal
+                eventsForDay={eventsForDay}
+                openModal={openModal}
+                isOpen={isViewMoreOpen}
+                onClose={() => setIsViewMoreOpen(false)}
+              />
+            </>
+          )}
+        />
+      )}
+      <AddEvent
+        dateOfEvent={dateOfEvent}
+        isModalEdit={isModalEdit}
+        events={events}
+        setEvents={setEvents}
+        eventToPass={eventToPass}
+        isOpen={isEventFormOpen}
+        onClose={() => {
+          setIsEventFormOpen(false);
+          setIsModalEdit(false);
+          setEventToPass(undefined);
+        }}
+      />
+    </div>
   );
 }
