@@ -92,6 +92,7 @@ export default function CalendarDay({
           onClick={() => {
             setIsEventFormOpen(true);
             setDateOfEvent(date);
+            setIsModalEdit(false);
           }}
         >
           +
@@ -130,6 +131,7 @@ export default function CalendarDay({
           setIsEventFormOpen(false);
           setIsModalEdit(false);
           setEventToPass(undefined);
+          setDateOfEvent(new Date(1980, 1, 1));
         }}
       />
     </div>

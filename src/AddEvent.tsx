@@ -28,6 +28,7 @@ export default function AddEvent({
     register,
     handleSubmit,
     reset,
+    setValue,
     watch,
     formState: { errors },
   } = useForm<EventNoIdNoDate | EventType>();
@@ -39,7 +40,14 @@ export default function AddEvent({
   useEffect(() => {
     isOpen && setAllDayState(false);
     eventToPass?.allDay && setAllDayState(true);
-  }, [isOpen, eventToPass]);
+    if (isOpen) {
+      setValue("name", eventToPass?.name || "");
+      setValue("allDay", eventToPass?.allDay || false);
+      setValue("startTime", eventToPass?.startTime || "");
+      setValue("endTime", eventToPass?.endTime || "");
+      setValue("color", eventToPass?.color || "blue");
+    }
+  }, [isOpen, eventToPass, setValue]);
 
   // function to add new event
   function addNewEvent(data: EventNoIdNoDate) {
@@ -103,7 +111,10 @@ export default function AddEvent({
     <ModalLogic isOpen={isOpen} onClose={onClose}>
       <div className="modal-title">
         <div>Add Event</div>
-        <small>{format(dateOfEvent, "MM/dd/yy")}</small>
+
+        <small>
+          {dateOfEvent ? format(dateOfEvent, "MM/dd/yy") : "Invalid date"}
+        </small>
         <button className="close-btn" onClick={onClose}>
           &times;
         </button>

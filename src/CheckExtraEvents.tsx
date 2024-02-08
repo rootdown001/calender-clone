@@ -1,4 +1,4 @@
-import { useDebugValue, useLayoutEffect, useRef, useState } from "react";
+import { useLayoutEffect, useRef, useState } from "react";
 import { EventType } from "./types";
 import { format, parse } from "date-fns";
 
